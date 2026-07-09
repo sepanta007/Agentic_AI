@@ -15,7 +15,7 @@ built once from `../../data/products.csv`, then read *and written* through the t
 | `get_product(sku)` | Read one product back from ChromaDB by its id. |
 | `get_category_tree()` | Top categories → leaf categories, from `taxonomy.json`. |
 | `get_category_attributes(category)` | A leaf category's applicable attribute schema, from `taxonomy.json`. |
-| `create_product(...)` | Embed a new product with MiniLM and add it to ChromaDB — immediately searchable, no reindexing. |
+| `create_product(..., extra=None)` | Embed a new product with MiniLM and add it to ChromaDB — immediately searchable, no reindexing. `extra` is a catch-all dict for supplier leftovers (wholesale price, MOQ, warranty...) that fit no catalog field. |
 
 No API key is used anywhere in this server — Claude Desktop brings its own model.
 

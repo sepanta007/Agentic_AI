@@ -58,6 +58,7 @@ def build_index():
                 "name": r["name"], "brand": r["brand"], "category": r["category"],
                 "price": float(r["price"]), "short_description": r["short_description"],
                 "long_description": r["long_description"], "attributes": r["attributes"],
+                "extra": "{}",  # existing catalog has no supplier leftovers
             }
             for _, r in df.iterrows()
         ],
@@ -71,8 +72,9 @@ if _collection.count() == 0:
 
 def _hit_from(sku, meta):
     hit = {"sku": sku, **meta}
-    if isinstance(hit.get("attributes"), str):  # stored as a JSON string -> parse back to a dict
-        hit["attributes"] = json.loads(hit["attributes"])
+    for field in ("attributes", "extra"):  # stored as JSON strings -> parse back to dicts
+        raw = hit.get(field)
+        hit[field] = json.loads(raw) if isinstance(raw, str) else (raw or {})
     return hit
 
 
@@ -130,11 +132,14 @@ def create_product(
     long_description: str,
     attributes: dict,
     sku: str = "",
+    extra: dict | None = None,
 ) -> dict:
     """Create a new product and add it to the ChromaDB index so it's immediately searchable.
 
     `attributes` should match the schema returned by get_category_attributes for `category`.
-    If `sku` is omitted, one is generated. Returns the created product (with its sku).
+    `extra` is a catch-all for supplier info that fits no catalog field (wholesale price,
+    MOQ, warranty, ship week, ...). If `sku` is omitted, one is generated. Returns the
+    created product (with its sku).
     """
     if not sku:
         existing = [s for s in _collection.get()["ids"] if s.startswith("SKU-")]
@@ -145,7 +150,9 @@ def create_product(
     metadata = {
         "name": name, "brand": brand, "category": category, "price": float(price),
         "short_description": short_description, "long_description": long_description,
+        # Chroma metadata must be SCALAR -> store the dicts as JSON strings.
         "attributes": json.dumps(attributes),
+        "extra": json.dumps(extra or {}),
     }
     _collection.add(
         ids=[sku],

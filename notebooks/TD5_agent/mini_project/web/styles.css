@@ -1,0 +1,248 @@
+/* ============================================================================
+   PIM Copilot — chat console for the PIM agent
+   Same "ink & warm paper, one amber accent" chrome as the Light PIM visualizer
+   next door — this is its companion app, not a different product.
+   ========================================================================== */
+
+:root {
+  --ground:    #ECEBE6;
+  --surface:   #FFFFFF;
+  --surface-2: #F5F4EF;
+  --ink:       #1A1917;
+  --ink-2:     #57534A;
+  --ink-3:     #908B7F;
+  --line:      #DCDAD1;
+  --line-2:    #C9C6BA;
+  --accent:    #E8A317;
+  --accent-dk: #C9870A;
+  --accent-ink:#2A2003;
+  --info:      #2F6690;
+  --danger:    #B23A2E;
+  --danger-bg: #F7E9E7;
+
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Menlo", "Consolas", monospace;
+
+  --radius:    8px;
+  --radius-sm: 5px;
+  --shadow:    0 1px 2px rgba(26,25,23,.05), 0 6px 18px rgba(26,25,23,.07);
+  --ring:      0 0 0 3px rgba(232,163,23,.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground:    #171613;
+    --surface:   #201F1B;
+    --surface-2: #26241F;
+    --ink:       #F1EFE9;
+    --ink-2:     #C8C3B8;
+    --ink-3:     #8B857A;
+    --line:      #37352F;
+    --line-2:    #46433B;
+    --accent-ink:#2A2003;
+    --danger-bg: #3A211D;
+  }
+}
+:root[data-theme="dark"] {
+  --ground:    #171613;
+  --surface:   #201F1B;
+  --surface-2: #26241F;
+  --ink:       #F1EFE9;
+  --ink-2:     #C8C3B8;
+  --ink-3:     #8B857A;
+  --line:      #37352F;
+  --line-2:    #46433B;
+  --accent-ink:#2A2003;
+  --danger-bg: #3A211D;
+}
+:root[data-theme="light"] {
+  --ground:    #ECEBE6;
+  --surface:   #FFFFFF;
+  --surface-2: #F5F4EF;
+  --ink:       #1A1917;
+  --ink-2:     #57534A;
+  --ink-3:     #908B7F;
+  --line:      #DCDAD1;
+  --line-2:    #C9C6BA;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; cursor: pointer; }
+:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--radius-sm); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* -- shell ------------------------------------------------------------------ */
+#app { display: flex; flex-direction: column; height: 100vh; max-width: 860px; margin: 0 auto; }
+
+.topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 20px; border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.topbar .mark {
+  width: 22px; height: 22px; border-radius: 6px; background: var(--accent);
+  transform: rotate(45deg); flex: none;
+}
+.topbar h1 { font-size: 15px; font-weight: 700; margin: 0; letter-spacing: -.01em; }
+.topbar .sub { font-size: 12px; color: var(--ink-3); margin-left: 2px; }
+.topbar .spacer { flex: 1; }
+.topbar a.ghost-link, .topbar button.ghost {
+  font-size: 12.5px; color: var(--ink-2); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px;
+  text-decoration: none; transition: background .15s, color .15s;
+}
+.topbar a.ghost-link:hover, .topbar button.ghost:hover { background: var(--line); color: var(--ink); }
+
+/* -- messages ---------------------------------------------------------------- */
+.thread {
+  flex: 1; overflow-y: auto; padding: 22px 20px 8px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.empty-state {
+  margin: auto; text-align: center; color: var(--ink-3); max-width: 420px;
+}
+.empty-state .mark-lg {
+  width: 40px; height: 40px; margin: 0 auto 14px; border-radius: 10px;
+  background: var(--accent); transform: rotate(45deg);
+}
+.empty-state h2 { color: var(--ink); font-size: 16px; margin: 0 0 6px; }
+.empty-state p { font-size: 13.5px; margin: 0 0 16px; }
+.suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.suggestion-chip {
+  font-size: 12.5px; text-align: left; max-width: 260px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 8px 12px; color: var(--ink-2); box-shadow: var(--shadow);
+}
+.suggestion-chip:hover { border-color: var(--accent); color: var(--ink); }
+
+.msg { display: flex; flex-direction: column; max-width: 82%; }
+.msg.user { align-self: flex-end; align-items: flex-end; }
+.msg.assistant { align-self: flex-start; align-items: flex-start; }
+
+.msg .role {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 4px; padding: 0 2px;
+}
+.bubble {
+  border-radius: var(--radius); padding: 10px 13px; white-space: pre-wrap; word-break: break-word;
+  font-size: 14.5px;
+}
+.msg.user .bubble { background: var(--accent); color: var(--accent-ink); border-bottom-right-radius: 3px; }
+.msg.assistant .bubble {
+  background: var(--surface); border: 1px solid var(--line); color: var(--ink);
+  border-bottom-left-radius: 3px; box-shadow: var(--shadow);
+}
+.bubble.error { background: var(--danger-bg); border: 1px solid var(--danger); color: var(--danger); }
+
+/* -- tool trace --------------------------------------------------------------- */
+.trace { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; width: 100%; }
+.trace-step {
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.trace-step summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; font-family: var(--mono); font-size: 12px; color: var(--ink-2);
+}
+.trace-step summary::-webkit-details-marker { display: none; }
+.trace-step summary .arrow { color: var(--accent-dk); font-weight: 700; flex: none; }
+.trace-step summary .tool-name { color: var(--info); font-weight: 600; }
+.trace-step summary .args { color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.trace-step summary .chev { margin-left: auto; color: var(--ink-3); font-size: 10px; }
+.trace-step summary .confirmed-tag, .trace-step summary .rejected-tag {
+  flex: none; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  border-radius: 999px; padding: 2px 7px;
+}
+.trace-step summary .confirmed-tag { background: rgba(47,102,144,.12); color: var(--info); }
+.trace-step summary .rejected-tag { background: var(--danger-bg); color: var(--danger); }
+.trace-step .output {
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-2);
+  background: var(--surface); border-top: 1px solid var(--line);
+  padding: 8px 10px; max-height: 220px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+}
+
+/* -- confirmation card (human-in-the-loop) ------------------------------------- */
+.confirm-card {
+  width: 100%; background: var(--surface); border: 1px solid var(--accent);
+  border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 8px; overflow: hidden;
+}
+.confirm-head {
+  background: rgba(232,163,23,.12); border-bottom: 1px solid var(--line);
+  padding: 8px 13px;
+}
+.confirm-badge {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent-dk);
+}
+.confirm-body { padding: 12px 13px; display: flex; flex-direction: column; gap: 8px; }
+.confirm-row { display: grid; grid-template-columns: 88px 1fr; gap: 10px; align-items: baseline; }
+.confirm-row .k {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.confirm-row .v { font-size: 13.5px; color: var(--ink); word-break: break-word; }
+.confirm-row .ink-3 { color: var(--ink-3); font-size: 12px; }
+.kv-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.kv {
+  font-family: var(--mono); font-size: 11.5px; background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 2px 7px;
+}
+.kv-k { color: var(--ink-2); }
+.kv-v { color: var(--ink); font-weight: 600; }
+.kv-v.null { color: var(--ink-3); font-weight: 400; font-style: italic; }
+.confirm-actions {
+  display: flex; gap: 8px; justify-content: flex-end;
+  padding: 10px 13px; border-top: 1px solid var(--line); background: var(--surface-2);
+}
+.confirm-btn {
+  border-radius: var(--radius-sm); border: 1px solid var(--line); padding: 7px 14px;
+  font-size: 13px; font-weight: 700; background: var(--surface); color: var(--ink);
+}
+.confirm-btn:disabled { opacity: .5; cursor: default; }
+.confirm-btn.approve { background: var(--accent); color: var(--accent-ink); border-color: var(--accent-dk); }
+.confirm-btn.approve:not(:disabled):hover { background: var(--accent-dk); }
+.confirm-btn.reject { color: var(--danger); border-color: var(--danger); background: var(--surface); }
+.confirm-btn.reject:not(:disabled):hover { background: var(--danger-bg); }
+
+.thinking { display: flex; align-items: center; gap: 6px; padding: 2px 2px; }
+.thinking .dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3);
+  animation: pulse 1.2s infinite ease-in-out;
+}
+.thinking .dot:nth-child(2) { animation-delay: .15s; }
+.thinking .dot:nth-child(3) { animation-delay: .3s; }
+@keyframes pulse { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+
+/* -- composer ------------------------------------------------------------------ */
+.composer {
+  border-top: 1px solid var(--line); background: var(--surface);
+  padding: 12px 20px 16px; display: flex; gap: 10px; align-items: flex-end;
+}
+.composer textarea {
+  flex: 1; resize: none; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--surface-2); color: var(--ink); font: inherit; font-size: 14px;
+  padding: 10px 12px; max-height: 160px; min-height: 42px;
+}
+.composer textarea:focus { border-color: var(--accent); }
+.composer button.send {
+  background: var(--accent); color: var(--accent-ink); border: none; border-radius: var(--radius);
+  padding: 0 18px; height: 42px; font-weight: 700; font-size: 13.5px; flex: none;
+}
+.composer button.send:disabled { opacity: .5; cursor: default; }
+.composer button.send:not(:disabled):hover { background: var(--accent-dk); }
+.hint { font-size: 11px; color: var(--ink-3); padding: 0 20px 10px; text-align: right; }
+
+.banner {
+  margin: 12px 20px 0; padding: 10px 12px; border-radius: var(--radius-sm);
+  background: var(--danger-bg); color: var(--danger); font-size: 13px; border: 1px solid var(--danger);
+}
